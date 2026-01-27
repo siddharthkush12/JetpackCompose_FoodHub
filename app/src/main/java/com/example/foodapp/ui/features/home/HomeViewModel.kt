@@ -10,72 +10,94 @@ import com.example.foodapp.data.remote.safeApiCall
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(private val foodApi: FoodApi): ViewModel(){
+class HomeViewModel @Inject constructor(private val foodApi: FoodApi) : ViewModel() {
 
-    private val _uiState= MutableStateFlow<HomeScreenState>(HomeScreenState.Loading)
-    val uiState:StateFlow<HomeScreenState> = _uiState.asStateFlow()
+    private val _navigationEvent = MutableSharedFlow<HomeScreenNavigationEvents?>()
+    val navigationEvent = _navigationEvent.asSharedFlow()
 
-    private val _navigationEvent= MutableSharedFlow<HomeScreenNavigationEvents?>()
-    val navigationEvent= _navigationEvent.asSharedFlow()
+
+    private val _categoryState =
+        MutableStateFlow<CategoryState>(CategoryState.Loading)
+    val categoryState = _categoryState.asStateFlow()
+
+    private val _restaurantState =
+        MutableStateFlow<RestaurantState>(RestaurantState.Loading)
+    val restaurantState = _restaurantState.asStateFlow()
 
 
     init {
-        getCategories()
-        getPopularRestaurants()
+        loadCategories()
+        loadRestaurants()
     }
 
-    fun getCategories() {
-        viewModelScope.launch{
-            val response= safeApiCall {
-                foodApi.getCategories()
-            }
-            when(response){
-                is ApiResponse.Success->{
-                    val categories = response.data.data
-                    if (categories.isEmpty()) {
-                        _uiState.value = HomeScreenState.Empty
-                    } else {
-                        _uiState.value =
-                            HomeScreenState.Success(categories)
-                    }
-                }
-                is ApiResponse.Error -> {
-                    _uiState.value=HomeScreenState.Error(response.message)
-                }
-                is ApiResponse.Exception -> {
-                    _uiState.value=HomeScreenState.Error(response.message)
-                }
+    private fun loadCategories() {
+        viewModelScope.launch {
+            when (val res = safeApiCall { foodApi.getCategories() }) {
+                is ApiResponse.Success ->
+                    _categoryState.value =
+                        if (res.data.data.isEmpty())
+                            CategoryState.Empty
+                        else
+                            CategoryState.Success(res.data.data)
+
+                is ApiResponse.Error ->
+                    _categoryState.value =
+                        CategoryState.Error(res.message)
+
+                is ApiResponse.Exception ->
+                    _categoryState.value =
+                        CategoryState.Error(res.message)
             }
         }
     }
 
-    fun getPopularRestaurants(){
 
+    private fun loadRestaurants() {
+        viewModelScope.launch {
+            when (val res = safeApiCall { foodApi.getRestaurants() }) {
+                is ApiResponse.Success ->
+                    _restaurantState.value =
+                        if (res.data.data.isEmpty())
+                            RestaurantState.Empty
+                        else
+                            RestaurantState.Success(res.data.data)
+
+                is ApiResponse.Error ->
+                    _restaurantState.value =
+                        RestaurantState.Error(res.message)
+
+                is ApiResponse.Exception ->
+                    _restaurantState.value =
+                        RestaurantState.Error(res.message)
+            }
+        }
     }
 
 
-
-
-    sealed class HomeScreenNavigationEvents{
-        object NavigationToDetail: HomeScreenNavigationEvents()
+    sealed class HomeScreenNavigationEvents {
+        object NavigationToDetail : HomeScreenNavigationEvents()
     }
 
 
-    sealed class HomeScreenState{
-        object Loading: HomeScreenState()
-        object Empty: HomeScreenState()
-        data class Success(val categories: List<Category>,val restaurants: List<Restaurant>) : HomeScreenState()
-        data class Error(val message: String) : HomeScreenState()
-
+    sealed class CategoryState {
+        object Loading : CategoryState()
+        object Empty : CategoryState()
+        data class Success(val data: List<Category>) : CategoryState()
+        data class Error(val message: String) : CategoryState()
     }
 
+    sealed class RestaurantState {
+        object Loading : RestaurantState()
+        object Empty : RestaurantState()
+        data class Success(val data: List<Restaurant>) : RestaurantState()
+        data class Error(val message: String) : RestaurantState()
+    }
 
 
 }

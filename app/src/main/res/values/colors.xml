@@ -9,4 +9,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="orange">#FE724C</color>
     <color name="ligth_text">#5B5B5E</color>
+    <color name="ligth_gray">#8A8E9B</color>
 </resources>
