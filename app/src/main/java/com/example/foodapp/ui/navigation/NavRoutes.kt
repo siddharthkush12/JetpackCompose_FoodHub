@@ -15,3 +15,10 @@ object SignUp
 
 @Serializable
 object Home
+
+@Serializable
+data class RestaurantDetail(
+    val restaurantId: String,
+    val restaurantName: String,
+    val restaurantImageUrl: String,
+)

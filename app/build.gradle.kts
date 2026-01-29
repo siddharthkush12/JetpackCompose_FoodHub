@@ -80,6 +80,8 @@ dependencies {
     implementation(libs.logging.interceptor)
     //Coil for image loading
     implementation(libs.coil.compose)
+    //Transaction
+    implementation(libs.androidx.compose.animation)
     //LoginWithGoogle
     implementation(libs.play.services.auth)
 

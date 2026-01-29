@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,7 +31,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -42,6 +40,7 @@ import coil.compose.AsyncImage
 import com.example.foodapp.R
 import com.example.foodapp.data.models.Category
 import com.example.foodapp.data.models.Restaurant
+import com.example.foodapp.ui.navigation.RestaurantDetail
 import com.example.foodapp.ui.theme.Orange
 
 
@@ -93,7 +92,13 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                 RestaurantList(
                     restaurants = state.data,
                     onRestaurantSelected = {
-                        navController.navigate("restaurant/${it._id}")
+                        navController.navigate(
+                            RestaurantDetail(
+                                restaurantId = it._id,
+                                restaurantName = it.name,
+                                restaurantImageUrl = it.imageUrl
+                            )
+                        )
                     }
                 )
             }
@@ -163,6 +168,8 @@ fun CategoryItem(
 }
 
 
+
+
 @Composable
 fun RestaurantList(
     restaurants: List<Restaurant>,
@@ -171,7 +178,9 @@ fun RestaurantList(
     Box {
         Column {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(8.dp,0.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp, 0.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -194,8 +203,9 @@ fun RestaurantList(
             }
         }
     }
-
 }
+
+
 
 
 @Composable
@@ -208,7 +218,7 @@ fun RestaurantItem(
             .width(300.dp)
             .height(270.dp)
             .padding(8.dp)
-            .clickable {onRestaurantSelected(restaurant)},
+            .clickable { onRestaurantSelected(restaurant) },
 
         shape = RoundedCornerShape(25.dp),
         color = Color.White,
@@ -338,169 +348,3 @@ fun RestaurantItem(
 }
 
 
-
-@Preview(showSystemUi = true)
-@Composable
-fun RestaurantList(
-
-) {
-    Box {
-        Column {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(8.dp,0.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(text = "Featured Restaurants", fontSize = 20.sp)
-
-                TextButton(
-                    onClick = {}
-                ) {
-                    Text(text = "View All >", fontSize = 17.sp, color = Orange)
-                }
-            }
-
-            LazyRow {
-                items(6) { restaurant ->
-                    OutputPreview()
-                }
-            }
-        }
-    }
-}
-
-//@Preview(showSystemUi = true)
-@Composable
-fun OutputPreview() {
-    Surface(
-        modifier = Modifier
-            .width(300.dp)
-            .height(260.dp)
-            .padding(8.dp)
-            .clickable { },
-
-        shape = RoundedCornerShape(25.dp),
-        color = Color.White,
-        shadowElevation = 3.dp,
-        tonalElevation = 1.dp
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.image),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    contentScale = ContentScale.Crop
-                )
-
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(8.dp)
-                        .background(Color.White, CircleShape)
-                        .padding(8.dp, 2.dp),
-                ) {
-                    Text(text = "4.5 ★", fontSize = 17.sp)
-                }
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(0.dp)
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.heart),
-                        contentDescription = null,
-                        modifier = Modifier.size(68.dp)
-                    )
-                }
-            }
-
-
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 12.dp),
-            ) {
-                Text(
-                    text = "This is card",
-                    fontSize = 17.sp,
-                    textAlign = TextAlign.Start,
-                    color = Color.Black,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                Row {
-                    Image(
-                        painter = painterResource(R.drawable.bike),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(17.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "Free delivery", fontSize = 14.sp)
-
-                    Spacer(modifier = Modifier.width(20.dp))
-
-                    Image(
-                        painter = painterResource(R.drawable.timer),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(17.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "10-15 mins", fontSize = 14.sp)
-                }
-
-                Spacer(modifier = Modifier.height(2.dp))
-
-                Row {
-                    Box(
-                        modifier = Modifier
-                            .padding(end = 8.dp)
-                            .clip(RoundedCornerShape(9.dp))
-                            .background(Color.LightGray)
-                            .padding(6.dp, 2.dp),
-
-                        ) {
-                        Text("Burger", fontSize = 12.sp, color = colorResource(R.color.ligth_text))
-                    }
-                    Box(
-                        modifier = Modifier
-                            .padding(end = 8.dp)
-                            .clip(RoundedCornerShape(9.dp))
-                            .background(Color.LightGray)
-                            .padding(6.dp, 2.dp),
-
-                        ) {
-                        Text(
-                            "Fast Food",
-                            fontSize = 12.sp,
-                            color = colorResource(R.color.ligth_text)
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .padding(end = 8.dp)
-                            .clip(RoundedCornerShape(9.dp))
-                            .background(Color.LightGray)
-                            .padding(6.dp, 2.dp),
-
-                        ) {
-                        Text("Chicken", fontSize = 12.sp, color = colorResource(R.color.ligth_text))
-                    }
-                }
-            }
-        }
-    }
-}

@@ -10,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -24,13 +25,16 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.foodapp.data.FoodApi
 import com.example.foodapp.data.FoodHubSession
 import com.example.foodapp.ui.features.auth.WelcomeScreen
 import com.example.foodapp.ui.features.auth.signin.SignInScreen
 import com.example.foodapp.ui.features.auth.signup.SignUpScreen
 import com.example.foodapp.ui.features.home.HomeScreen
+import com.example.foodapp.ui.features.restaurantsDetail.RestaurantDetailScreen
 import com.example.foodapp.ui.navigation.Home
+import com.example.foodapp.ui.navigation.RestaurantDetail
 import com.example.foodapp.ui.navigation.SignIn
 import com.example.foodapp.ui.navigation.SignUp
 import com.example.foodapp.ui.navigation.WelcomeScreen
@@ -48,6 +52,7 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var foodApi: FoodApi
+
     @Inject
     lateinit var session: FoodHubSession
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,8 +86,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             FoodappTheme {
-                    val startPoint=if(session.getToken()!=null) Home else WelcomeScreen
-                    val navController = rememberNavController()
+                val startPoint = if (session.getToken() != null) Home else WelcomeScreen
+                val navController = rememberNavController()
+                SharedTransitionLayout {
                     NavHost(
                         navController = navController,
                         startDestination = startPoint,
@@ -90,25 +96,25 @@ class MainActivity : ComponentActivity() {
                             slideIntoContainer(
                                 towards = AnimatedContentTransitionScope.SlideDirection.Left,
                                 animationSpec = tween(300)
-                            )+ fadeIn(animationSpec = tween(300))
+                            ) + fadeIn(animationSpec = tween(300))
                         },
                         exitTransition = {
                             slideOutOfContainer(
                                 towards = AnimatedContentTransitionScope.SlideDirection.Left,
                                 animationSpec = tween(300)
-                            )+ fadeOut(animationSpec = tween(300))
+                            ) + fadeOut(animationSpec = tween(300))
                         },
                         popEnterTransition = {
                             slideIntoContainer(
                                 towards = AnimatedContentTransitionScope.SlideDirection.Right,
                                 animationSpec = tween(300)
-                            )+ fadeIn(animationSpec = tween(300))
+                            ) + fadeIn(animationSpec = tween(300))
                         },
                         popExitTransition = {
                             slideOutOfContainer(
                                 towards = AnimatedContentTransitionScope.SlideDirection.Right,
                                 animationSpec = tween(300)
-                            )+ fadeOut(animationSpec = tween(300))
+                            ) + fadeOut(animationSpec = tween(300))
                         }
                     ) {
                         composable<WelcomeScreen> {
@@ -123,6 +129,16 @@ class MainActivity : ComponentActivity() {
                         composable<Home> {
                             HomeScreen(navController)
                         }
+                        composable<RestaurantDetail> {
+                            val route = it.toRoute<RestaurantDetail>()
+                            RestaurantDetailScreen(
+                                navController,
+                                name = route.restaurantName,
+                                imageUrl = route.restaurantImageUrl,
+                                restaurantId = route.restaurantId
+                            )
+                        }
+                    }
                 }
             }
         }
